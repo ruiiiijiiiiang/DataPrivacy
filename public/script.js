@@ -183,7 +183,7 @@ function refreshNoiseAge() {
   var noise = []
   for (var i = 0,len = ageDicts.length; i < len; i++){
     noise.push(Math.max(0,Math.floor(laplaceRV(sensitivity,eps/2))));
-    tempData.push(ageDicts[i].lists.length + noise[i]);
+    tempData.push(ageDicts[i].lists.length);
   }
   currType = "Age";
   drawGraph(tempData,noise,"Age");
