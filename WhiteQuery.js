@@ -14,6 +14,16 @@
  - limitations under the License.
  */
 
+ var data;
+
+ jQuery.ajaxSetup({ type: 'POST', cache: false });
+ jQuery(document).ready(function (){
+   jQuery.getJSON('dataset.json', function(json) {
+     console.log('Read ' + json.length + ' sets of data');
+     data = json;
+   });
+ });
+
 // Global variables for the histogram
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 595 - margin.left - margin.right,
@@ -294,7 +304,9 @@ function thresholds() {
   //  thresholds.push(bin);
   //}
   //thresholds.push(maxLap + binRange/2);
-  thresholds.push(binRange);
+  thresholds.push(0);
+  thresholds.push(0.5);
+  thresholds.push(1);
   return thresholds;
 }
 /**
