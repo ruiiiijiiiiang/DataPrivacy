@@ -1,68 +1,35 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script>
 <link rel="stylesheet" href="http://s0.wp.com/wp-content/themes/premium/minimum/style.css?m=1358482073g" type="text/css" media="screen" />
-<link rel='stylesheet' id='googlefont-droid-serif-css'  href='http://fonts.googleapis.com/css?family=Droid+Serif&ver=1.0.0' type='text/css' media='all' />
-<link rel='stylesheet' id='googlefont-oswald-css'  href='http://fonts.googleapis.com/css?family=Oswald&ver=1.0.0' type='text/css' media='all' />
-<link rel='stylesheet' id='all-css-4' href='http://s2.wp.com/_static/??-eJxtjEEOgyAQAD/kujFYw6XpWxZLgQYWwq7x+9qDp3qay8zg3mCtrJ4VywYtbyGxIFf1gvQuicFRh+5Fx1VkwHu/VVH4ZEodJVJPHC7+VRp9Od9xxpCro/wTXuU5mYc1djZm+R4seTW6' type='text/css' media='all' />
-<link rel='stylesheet' id='all-css-0' href='http://s1.wp.com/wp-content/mu-plugins/highlander-comments/style.css?m=1343991657g' type='text/css' media='all' />
-<!--link rel="stylesheet" id="custom-css-css" type="text/css" href="http://research.neustar.biz/?custom-css=1&#038;csblog=1vwzq&#038;cscache=6&#038;csrev=109"/-->
-<link rel="stylesheet" id="pqstyles" type="text/css" href="WhiteQuery.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"/>
+<link rel="stylesheet" id="pqstyles" type="text/css" href="style.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="Chart.js"></script>
-<script src="WhiteQuery.js"></script>
+<script src="script.js"></script>
 </head>
 
-<body class="single single-post postid-2424 single-format-standard logged-in admin-bar no-customize-support typekit-enabled custom-header header-image header-full-width full-width-content highlander-enabled highlander-light">
-<div id="pusher">
-<div id="ui inverted vertical masthead center aligned segment">
-    <div class="ui text container">
-
-        <h1 class = "title"> Data Privacy</h1>
-    </div><!-- end .wrap -->
-    </div><!--end #header-->
+<body>
+<div id="ui centered grid">
+    <h1 class="four wide centered column">Differential Privacy Demo</h1>
 </div>
 <div class="ui inverted" id="inner">
-    <div id="content-sidebar-wrap">
-        <div id="content" class="hfeed">
-            <div class="post-2424 post type-post format-standard hentry category-data-science">
-                <h2 class="entry-title">
-                    <a href="http://research.neustar.biz/2014/09/08/differential-privacy-the-basics/" title="Differential Privacy: The Basics" rel="bookmark"></a>
-                </h2>
-                <div class="post-info">
-                    <span></span>
-                    <span></span>
-                    <!--span class="date published time" title="2014-09-08T10:00:00+00:00"></span>
-                    <span class="author vcard"><span class="fn"><a href="http://research.neustar.biz/author/atockar/" class="fn n" title="atockar" rel="author"></a></span></span>
-                    <span class="post-comments"><a href="http://research.neustar.biz/2014/09/08/differential-privacy-the-basics/#comments"></a></span-->
-                </div>
-                <div class="entry-content">
-                    <div id="whitequery" class="aligncenter">
-                      <button class="buttn" id="sim" onclick = 'change()'>Age</button>
-                      <button class="buttn" onclick = 'refreshNoiseGender()'>Gender</button>
-                      <button class="buttn" onclick = 'refreshNoiseRace()'>Race</button>
-                      <button class="buttn" onclick = 'refreshNoiseAge()'>Epsilon</button>
+  <div class="entry-content">
+  <div class="aligncenter">
+  <button class="ui-button ui-widget ui-corner-all" onclick = 'refreshNoiseAge()'>Age</button>
+  <button class="ui-button ui-widget ui-corner-all" onclick = 'refreshNoiseGender()'>Gender</button>
+  <button class="ui-button ui-widget ui-corner-all" onclick = 'refreshNoiseRace()'>Race</button>
 
-                      <div class="eps">ε</div>
-                      <input id="budgetSlider" type="range" min="0.01" max="1" value = "0.5" step = "0.02" onchange="refreshHistogram()"/><input id="budgetTBox" type="text" class="txtbx" size="1"/>
-                      <div class="tabl" id="pqtbl"></div>
-                      <canvas id="chart" width="500" height="400"></canvas>
-                      <!--div class="histdiv" id="histogram"></div-->
-                    </div>
-                    <!--p class = "footer">Clicking the "Play Simulation" button will refresh the query continuously, and add the result to the histogram. The "Step" button allows the query to be run once, as might occur in practice, and shows how uninformative the answer may be. As expected, we can see that each histogram has a Laplace distribution.*
-                    <p class = "footer" style="margin-top:0px;">This shows how multiple query runs will divulge the true value of the query. Of course this is not possible in practice, due to composition.</p>
-                    <p class = "footer" style="margin-top:0px; font-size: 11px;"><i>* I removed outliers at the tails of the distribution for clarity. This has no effect on the shape of the histogram shown.</i></p-->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  <div class="eps">ε</div>
+  <input id="epsSlider" type="range" min="0.001" max="0.01" value = "0.001" step = "0.0001" onchange="refreshGraph()"/>
+  <span id="epsVal">0.001</span>
+  <div class="tabl" id="pqtbl"></div>
+  <canvas id="chart"></canvas>
+  </div>
 </div>
 </body>
 </html>
