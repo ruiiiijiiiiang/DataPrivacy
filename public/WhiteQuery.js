@@ -14,15 +14,18 @@
  - limitations under the License.
  */
 
- var data;
+ var csv;
 
  jQuery.ajaxSetup({ type: 'POST', cache: false });
  jQuery(document).ready(function (){
    jQuery.getJSON('dataset.json', function(json) {
      console.log('Read ' + json.length + ' sets of data');
-     data = json;
+     csv = json;
+     init();
    });
  });
+
+
 
 // Global variables for the histogram
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -40,10 +43,39 @@ for(var i=0; i<12; i++) {
 var comma0dp = d3.format(",.0f"),
     comma1dp = d3.format(",.1f"),
     comma2dp = d3.format(",.2f");
+var ageDicts = [];
+var GenderDcits = [{Gender:1,lists:[]},{Gender:2,lists:[]}];
+var RaceDicts = [{Race:1,lists:[]},{Race:2,lists:[]},{Race:3,lists:[]},{Race:4,lists:[]},{Race:5,lists:[]}];
 
 /** Generates the table */
 function init() {
-  window.onload = function() {printBudget();}
+
+  for (var i = 0,len = csv.length; i < len; i++) {
+    ageDicts.push(csv[i].Age);
+    if (csv[i].Gender == 1) {
+      GenderDcits[0].lists.push(csv[i].Age);
+    }
+    else if  (csv[i].Gender == 2) {
+      GenderDcits[1].lists.push(csv[i].Age);
+    }
+    if (csv[i].Race == 1) {
+      RaceDicts[0].lists.push(csv[i].Age);
+    }
+    else if (csv[i].Race == 2) {
+      RaceDicts[1].lists.push(csv[i].Age);
+    }
+    else if  (csv[i].Race == 3) {
+      RaceDicts[2].lists.push(csv[i].Age);
+    }
+    else if (csv[i].Race == 4) {
+      RaceDicts[3].lists.push(csv[i].Age);
+    }
+    else if  (csv[i].Race == 5) {
+      RaceDicts[4].lists.push(csv[i].Age);
+    }
+  }
+
+  //window.onload = function() {printBudget();}
 
   var tbl = "<table>";
   tbl+= "<tr><th id = 0,0></th><th colspan=2 id = 0,1></th><th id = 0,2></th></tr>";
@@ -60,6 +92,7 @@ function init() {
   tbl += "</table>";
   document.getElementById("pqtbl").innerHTML = tbl;
 
+
   // Populate cells
   document.getElementById("0,1").innerHTML = "<font color=\"#5e7185\">Gender</font>";
   document.getElementById("0,2").innerHTML = "<font color=\"#5e7185\">Noise</font>";
@@ -71,8 +104,9 @@ function init() {
   document.getElementById("2,3").innerHTML = "0";
   document.getElementById("3,0").innerHTML = "<b>Female</b>";
 
+
   drawHistogram();
-  //refreshNoise();
+  refreshNoise();
 }
 /** Creates a new histogram as the distribution has changed */
 function refreshHistogram() {
@@ -88,11 +122,10 @@ function refreshHistogram() {
 /** Refreshes the privatized queries, calculates the difference and prints this in the table */
 function refreshNoise() {
   //printBudget();
-  var test = [ { Gender: 1, lists: [ 43, 65, 43, 32, 43, 32 ] },
-    { Gender: 2, lists: [ 31, 39, 37, 43 ] } ];
+  var test = GenderDcits;
   var eps = document.getElementById("budgetSlider").value;
   var  sensitivity = 1;
-
+  console.log(test.length);
   //var query1 = Math.round(50000000 + laplaceRV(sensitivity,eps/2));
   //var  query2 = Math.round(49000000 + laplaceRV(sensitivity,eps/2));
   //var   privIncome = query1 - query2;
@@ -100,15 +133,16 @@ function refreshNoise() {
   var GenderOneAfter = Math.max(0,Math.round(GenderOneBefore + laplaceRV(sensitivity,eps/2)));
   var GenderTwoBefore = test[1].lists.length;
   var GenderTwoAfter = Math.max(0,Math.round(GenderTwoBefore + laplaceRV(sensitivity,eps/2)));
-  document.getElementById("2,1").innerHTML = formatMoney(GenderOneBefore, 0);
-  document.getElementById("2,2").innerHTML = formatMoney(GenderOneAfter, 0);
-  document.getElementById("2,3").innerHTML = formatMoney(Math.max(0,GenderOneBefore-GenderOneAfter ),0);
-  document.getElementById("2,1").innerHTML = formatMoney(GenderTwoBefore, 0);
-  document.getElementById("2,2").innerHTML = formatMoney(GenderTwoAfter, 0);
-  document.getElementById("2,3").innerHTML = formatMoney(Math.max(0,GenderTwoBefore-GenderTwoAfter ),0);
+  document.getElementById("2,1").innerHTML = GenderOneBefore;
+  document.getElementById("2,2").innerHTML = GenderOneAfter;
+  document.getElementById("2,3").innerHTML = Math.max(0,GenderOneBefore-GenderOneAfter);
+  document.getElementById("3,1").innerHTML = GenderTwoBefore;
+  document.getElementById("3,2").innerHTML = GenderTwoAfter;
+  document.getElementById("3,3").innerHTML = Math.max(0,GenderTwoBefore-GenderTwoAfter );
   var difference1 = Math.max(0,GenderOneBefore-GenderOneAfter );
   var differnce2 = Math.max(0,GenderTwoBefore-GenderTwoAfter )
   var arrays = [GenderOneBefore,GenderTwoBefore];
+  //console.log(arrays);
   updateHistogram(arrays);
 
 }
@@ -154,14 +188,14 @@ function updateHistogram(data) {
   //    refreshNoise();
   //  return;
   //}
-
+  //console.log(data);
   var x = d3.scale.linear()
       .domain([d3.min(data), d3.max(data)])
       .range([0, width]);
 
   // Create histogram
   var histo = d3.layout.histogram()
-                .bins(thresholds)
+                .bins(2)
                 (data);
 
   // Update scale domains
@@ -304,9 +338,12 @@ function thresholds() {
   //  thresholds.push(bin);
   //}
   //thresholds.push(maxLap + binRange/2);
-  thresholds.push(0);
-  thresholds.push(0.5);
-  thresholds.push(1);
+
+  thresholds.push(5000);
+  thresholds.push(10000);
+  thresholds.push(15000);
+  thresholds.push(20000);
+
   return thresholds;
 }
 /**
