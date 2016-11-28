@@ -15,6 +15,10 @@ var GenderDicts = [{Gender:1,lists:[]},{Gender:2,lists:[]}];
 var RaceDicts = [{Race:1,lists:[]},{Race:2,lists:[]},{Race:3,lists:[]},{Race:4,lists:[]},{Race:5,lists:[]}];
 var currType;
 
+function download() {
+  document.getElementById('my_iframe').src = 'dataset.csv';
+}
+
 function resetTable(type) {
   if (type === "Age") {
     $("#pqtbl").empty();
@@ -80,8 +84,8 @@ function refreshNoiseGender() {
   var GenderTwoNoise = GenderTwoAfter - GenderTwoBefore;
 
   // Populate cells
-  document.getElementById("1,1").innerHTML = "<b>Before</b>";
-  document.getElementById("1,2").innerHTML = "<b>After</b>";
+  document.getElementById("1,1").innerHTML = "<b>Raw</b>";
+  document.getElementById("1,2").innerHTML = "<b>Perturbed</b>";
   document.getElementById("1,3").innerHTML = "<b>Noise</b>";
   document.getElementById("2,0").innerHTML = "<b>1</b>";
   document.getElementById("2,1").innerHTML = "0";
@@ -124,8 +128,8 @@ function refreshNoiseRace() {
   var RaceFiveAfter = Math.max(0,Math.round(RaceFiveBefore + laplaceRV(sensitivity,eps/2)));
   var RaceFiveNoise = RaceFiveAfter - RaceFiveBefore;
   // Populate cells
-  document.getElementById("1,1").innerHTML = "<b>Before</b>";
-  document.getElementById("1,2").innerHTML = "<b>After</b>";
+  document.getElementById("1,1").innerHTML = "<b>Raw</b>";
+  document.getElementById("1,2").innerHTML = "<b>Perturbed</b>";
   document.getElementById("1,3").innerHTML = "<b>Noise</b>";
   document.getElementById("2,0").innerHTML = "<b>1</b>";
   document.getElementById("2,1").innerHTML = "0";

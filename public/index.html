@@ -27,6 +27,8 @@
   <div class="eps">ε</div>
   <input id="epsSlider" type="range" min="0.001" max="0.01" value = "0.001" step = "0.0001" onchange="refreshGraph()"/>
   <span id="epsVal">0.001</span>
+  <button class="ui-button ui-widget ui-corner-all" onclick = 'download()'>Download File</button>
+  <iframe id="my_iframe" style="display:none;"></iframe>
   <div class="tabl" id="pqtbl"></div>
   <canvas id="chart"></canvas>
   </div>

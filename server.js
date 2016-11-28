@@ -16,7 +16,7 @@ csvConverter.on('end_parsed', function(json) {
   });
 });
 
-fs.createReadStream('dataset.csv').pipe(csvConverter);
+fs.createReadStream('public/dataset.csv').pipe(csvConverter);
 
 app.set('port', 3000);
 
