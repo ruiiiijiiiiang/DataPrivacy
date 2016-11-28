@@ -34,17 +34,12 @@ var margin = {top: 20, right: 20, bottom: 30, left: 50},
 var svg, data = [],
     TRANSTIME = 25, // Time taken to transition
     stop = false;   // Allow simulator to run
-var lastHisto = []; // Retains last histogram so visualization can grow
-for(var i=0; i<12; i++) {
-  var obj = {"y": height};
-  lastHisto.push(obj);
-}
 // Formats
 var comma0dp = d3.format(",.0f"),
     comma1dp = d3.format(",.1f"),
     comma2dp = d3.format(",.2f");
 var ageDicts = [];
-var GenderDcits = [{Gender:1,lists:[]},{Gender:2,lists:[]}];
+var GenderDicts = [{Gender:1,lists:[]},{Gender:2,lists:[]}];
 var RaceDicts = [{Race:1,lists:[]},{Race:2,lists:[]},{Race:3,lists:[]},{Race:4,lists:[]},{Race:5,lists:[]}];
 
 /** Generates the table */
@@ -52,27 +47,8 @@ function init() {
 
   for (var i = 0,len = csv.length; i < len; i++) {
     ageDicts.push(csv[i].Age);
-    if (csv[i].Gender == 1) {
-      GenderDcits[0].lists.push(csv[i].Age);
-    }
-    else if  (csv[i].Gender == 2) {
-      GenderDcits[1].lists.push(csv[i].Age);
-    }
-    if (csv[i].Race == 1) {
-      RaceDicts[0].lists.push(csv[i].Age);
-    }
-    else if (csv[i].Race == 2) {
-      RaceDicts[1].lists.push(csv[i].Age);
-    }
-    else if  (csv[i].Race == 3) {
-      RaceDicts[2].lists.push(csv[i].Age);
-    }
-    else if (csv[i].Race == 4) {
-      RaceDicts[3].lists.push(csv[i].Age);
-    }
-    else if  (csv[i].Race == 5) {
-      RaceDicts[4].lists.push(csv[i].Age);
-    }
+    GenderDicts[csv[i].Gender-1].lists.push(csv[i].Age);
+    RaceDicts[csv[i].Race-1].lists.push(csv[i].Age);
   }
 
   //window.onload = function() {printBudget();}
@@ -105,15 +81,14 @@ function init() {
   document.getElementById("3,0").innerHTML = "<b>Female</b>";
 
 
-  drawHistogram();
+  var data = [GenderDicts[0].lists.length,GenderDicts[1].lists.length];
+  drawHistogram(data);
   refreshNoise();
 }
 /** Creates a new histogram as the distribution has changed */
 function refreshHistogram() {
   d3.select("#SVGhisto")
     .remove();
-
-  data = [];
 
   drawHistogram();
   refreshNoise();
@@ -122,13 +97,9 @@ function refreshHistogram() {
 /** Refreshes the privatized queries, calculates the difference and prints this in the table */
 function refreshNoise() {
   //printBudget();
-  var test = GenderDcits;
+  var test = GenderDicts;
   var eps = document.getElementById("budgetSlider").value;
   var  sensitivity = 1;
-  console.log(test.length);
-  //var query1 = Math.round(50000000 + laplaceRV(sensitivity,eps/2));
-  //var  query2 = Math.round(49000000 + laplaceRV(sensitivity,eps/2));
-  //var   privIncome = query1 - query2;
   var GenderOneBefore = test[0].lists.length;
   var GenderOneAfter = Math.max(0,Math.round(GenderOneBefore + laplaceRV(sensitivity,eps/2)));
   var GenderTwoBefore = test[1].lists.length;
@@ -142,21 +113,40 @@ function refreshNoise() {
   var difference1 = Math.max(0,GenderOneBefore-GenderOneAfter );
   var differnce2 = Math.max(0,GenderTwoBefore-GenderTwoAfter )
   var arrays = [GenderOneBefore,GenderTwoBefore];
-  //console.log(arrays);
+  console.log(arrays);
   updateHistogram(arrays);
 
 }
 /** Initializes the histogram (draws axes) */
-function drawHistogram() {
-
+function drawHistogram(data) {
+  console.log(data);
+  var model = {
+    labels: ["Male", "Female"],
+    datasets: [
+        {
+            data: data
+        }
+    ]
+  };
+  var ctx = document.getElementById('chart').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: model
+  });
+/*
   var x = d3.scale.linear()
-      .domain([0, 1])
-      .range([0, width]);
+      .domain(['Male', 'Female']);
 
   var xAxis = d3.svg.axis()
       .scale(x)
-      .ticks(0)
       .orient("bottom");
+
+  var y = d3.scale.ordinal()
+      .range([d3.max(array)]);
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
 
   svg = d3.select("#histogram").append("svg")
       .attr("id", "SVGhisto")
@@ -164,10 +154,32 @@ function drawHistogram() {
       .attr("height", height + margin.top + margin.bottom);
 
   svg.append("g")
-      .attr("id", "xaxis")
-      .attr("class", "axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis)
+  .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", "-.55em")
+    .attr("transform", "rotate(-90)" );
+
+  svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Value ($)");
+
+  svg.selectAll("bar")
+    .data(data)
+  .enter().append("rect")
+    .style("fill", "steelblue")
+    .attr("y", function(d) { return y(d); })
+    .attr("height", function(d) { return height - y(d.value); });
+*/
 }
 /**
  * Updates the histogram on refresh (i.e. adds an extra bar)
@@ -189,32 +201,23 @@ function updateHistogram(data) {
   //  return;
   //}
   //console.log(data);
+  /*
   var x = d3.scale.linear()
       .domain([d3.min(data), d3.max(data)])
       .range([0, width]);
 
-  // Create histogram
-  var histo = d3.layout.histogram()
-                .bins(2)
-                (data);
-
   // Update scale domains
   x = d3.scale.linear()
-      .domain([d3.min(histo, function(d) {return d.x;}),
-        d3.max(histo, function(d) {return d.x + d.dx;})])
+      .domain([d3.min(data), d3.max(data)])
       .range([0, width]);
 
   var y = d3.scale.linear()
-      .domain([0, d3.max(histo, function(d) {return d.y;})])
+      .domain([0, d3.max(data)])
       .range([height, 0]);
-
-  var nticks = histo.length * (histo.length > 1);
 
   var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
-      .ticks(nticks)
-      .tickFormat(formatAxis);
 
   // Update x axis
   svg.select("#xaxis")
@@ -226,29 +229,21 @@ function updateHistogram(data) {
   svg.selectAll("rect").remove();
 
   var bar = svg.selectAll("rect")
-      .data(histo)
+      .data(data)
       .enter()
     .append("g")
       .attr("class", "bar");
 
   // Draw bars
   bar.append("rect")
-      .attr("x", function(d) {return x(d.x);})
-      .attr("y", function(d, i) {
-        if(typeof lastHisto[i]  != "undefined")
-          return y(lastHisto[i].y);
-        else return height;
-      })
-      .attr("width", width/(histo.length+1))
-      .attr("height", function(d, i) {
-        if(typeof lastHisto[i] != "undefined")
-          return height - y(lastHisto[i].y);
-        else return 0;
-      })
+      .attr("x", -width/2)
+      .attr("y", y)
+      .attr("width", width/2)
+      .attr("height", height)
     .transition()
       .duration(TRANSTIME)
-      .attr("y", function(d) {return y(d.y);})
-      .attr("height", function(d) {return height-y(d.y);});
+      .attr("y", height)
+      .attr("height", height);
 
 
   // Draw text
@@ -257,12 +252,8 @@ function updateHistogram(data) {
   bar.append("text")
       .attr("id", "barText")
       .attr("dy", ".75em")
-      .attr("y", function(d, i) {
-        if(typeof lastHisto[i]  != "undefined")
-          return y(lastHisto[i].y) + 6;
-        else return height-10;
-      })
-      .attr("x", function(d) {return x(d.x)+(width/histo.length)/2-2;})
+      .attr("y", y)
+      .attr("x", -width/2)
       .attr("fill", function(d) {
         if(y(d.y)<(height-20)) return "white";
         else return "none";
@@ -270,9 +261,8 @@ function updateHistogram(data) {
       .text(function(d) { return comma0dp(d.y); })
     .transition()
       .duration(TRANSTIME)
-      .attr("y", function(d) {return y(d.y)+6;});
-
-  lastHisto = histo;
+      .attr("y", y);
+    */
 }
 /** Executes the correct function and changes button text when play/stop button is pressed */
 function change() {
@@ -313,83 +303,4 @@ function laplaceRV(sensitivity, eps) {
   b = sensitivity / eps;
   if(u<0) {return b * Math.log(1+2*u);}
   else {return -b * Math.log(1-2*u);}
-}
-
-/** Refreshes the textbox containing the privacy budget (epsilon) */
-function printBudget() {
-  var x = document.getElementById("budgetTBox");
-  var y = document.getElementById("budgetSlider");
-  x.value = y.value;
-}
-/**
- * Create bins based on epsilon (scale of Laplace distribution)
- * @returns {array[float]} the array of bins needed to input to the histogram layout
- */
-function thresholds() {
-  var numBins = 2,
-      eps = document.getElementById("budgetSlider").value,
-      //lap99 = -(1000000/(eps/2))*Math.log(0.02), // 99th percentile of Laplace
-      //minLap = 1000000-lap99,
-      //maxLap = 1000000+lap99,
-      binRange = (1)/numBins,
-      thresholds = [];
-  //for(var i=0; i<=numBins; i++) {
-  //  var bin = minLap + i*binRange - binRange/2;
-  //  thresholds.push(bin);
-  //}
-  //thresholds.push(maxLap + binRange/2);
-
-  thresholds.push(5000);
-  thresholds.push(10000);
-  thresholds.push(15000);
-  thresholds.push(20000);
-
-  return thresholds;
-}
-/**
- * Formats a number as currency
- * @param {float} number - the number to be converted
- * @param {int} places - the number of decimal places in the output
- * @param {string} symbol - the currency symbol (default is '$')
- * @param {string} thousand - the symbol for thousand separators (default is ',')
- * @param {string} decimal - the symbol for the decimal point (default is '.')
- * @returns {string} the number formatted as currency
- */
-function formatMoney(number, places, symbol, thousand, decimal) {
-  number = number || 0;
-  places = !isNaN(places = Math.abs(places)) ? places : 2;
-  symbol = symbol !== undefined ? symbol : "$";
-  thousand = thousand || ",";
-  decimal = decimal || ".";
-  var negative = number < 0 ? "-" : "",
-      i = parseInt(number = Math.abs(+number || 0).toFixed(places), 10) + "",
-      j = (j = i.length) > 3 ? j % 3 : 0;
-  return symbol + negative + (j ? i.substr(0, j) + thousand : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousand) + (places ? decimal + Math.abs(number - i).toFixed(places).slice(2) : "");
-}
-/**
- * Formats the x axis in a desirable format - no trailing zeros, etc.
- * @param {float} d - the data point to be formatted
- */
-function formatAxis(d) {
-  var dmil = d/1000000;
-  if(Math.abs(d) > 99999999)
-    return comma0dp(dmil)+"m";
-  else if(Math.abs(d) > 9999999) {
-    var str = comma1dp(dmil);
-    if(str.substring(str.length-1,str.length)=="0")
-      return comma0dp(dmil)+"m";
-    else return comma1dp(dmil)+"m";
-  }
-  else if(Math.abs(d) > 999999) {
-    var str = comma2dp(dmil);
-    if(str.substring(str.length-1,str.length)=="0") {
-      if(str.substring(str.length-2,str.length-1)=="0")
-        return comma0dp(dmil)+"m";
-      else return comma1dp(dmil)+"m";
-    }
-    else return comma2dp(dmil)+"m";
-  }
-  else if(Math.abs(d) > 99999)
-    return comma0dp(d/1000)+"k";
-  else return comma0dp(d);
 }
