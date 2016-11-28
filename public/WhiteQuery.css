@@ -1,4 +1,4 @@
-/*
+  /*
  - Copyright 2014 Neustar, Inc.
  -
  - Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
   font-family: Sans-Serif;
   margin: 5px;
   border-collapse: collapse;
-  color: #5e7185;
+  color: #467b85;
   width: 600px;
 }.tabl th {
   text-align: center;
@@ -40,7 +40,7 @@
   font: 14px sans-serif;
 }
 input[type="range"]{
-  background: #e7f3ff;
+  background: #41abff;
   width: 120px;
   height: 5px;
   -webkit-appearance: none;
@@ -63,7 +63,7 @@ input[type="range"]::-webkit-slider-thumb{
   -moz-border-radius: 8px;
   -wekkit-border-radius: 8px;
   border:1px solid black;
-  background: #c9e5ff;
+  background: #aaaaff;
 }
 input[type="range"]::-webkit-slider-thumb:hover{
   background: #839db8;
@@ -91,7 +91,7 @@ input[type="range"]::-webkit-slider-thumb:hover{
   font-size: 11px;
 }
 .bar rect {
-  fill: #855e71;
+  fill: #7b5685;
   shape-rendering: crispEdges;
 }
 .bar text {
