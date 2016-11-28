@@ -14,12 +14,15 @@
  - limitations under the License.
  */
 
-jQuery.ajaxSetup({ type: 'POST', cache: false });
-jQuery(document).ready(function (){
-  jQuery.getJSON('dataset.json', function(data) {
-    console.log(data.length);
-  });
-});
+ var data;
+
+ jQuery.ajaxSetup({ type: 'POST', cache: false });
+ jQuery(document).ready(function (){
+   jQuery.getJSON('dataset.json', function(json) {
+     console.log('Read ' + json.length + ' sets of data');
+     data = json;
+   });
+ });
 
 // Global variables for the histogram
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -58,18 +61,18 @@ function init() {
   document.getElementById("pqtbl").innerHTML = tbl;
 
   // Populate cells
-  document.getElementById("0,1").innerHTML = "<font color=\"#5e7185\">Total Income</font>";
-  document.getElementById("0,2").innerHTML = "<font color=\"#5e7185\">Mr. White's Income</font>";
+  document.getElementById("0,1").innerHTML = "<font color=\"#5e7185\">Gender</font>";
+  document.getElementById("0,2").innerHTML = "<font color=\"#5e7185\">Noise</font>";
   document.getElementById("1,1").innerHTML = "<b>Before the Move</b>";
   document.getElementById("1,2").innerHTML = "<b>After the Move</b>";
-  document.getElementById("2,0").innerHTML = "<b>Raw</b>";
-  document.getElementById("2,1").innerHTML = "$50,000,000";
-  document.getElementById("2,2").innerHTML = "$49,000,000";
-  document.getElementById("2,3").innerHTML = "$1,000,000";
-  document.getElementById("3,0").innerHTML = "<b>Privatized</b>";
+  document.getElementById("2,0").innerHTML = "<b>Male</b>";
+  document.getElementById("2,1").innerHTML = "0";
+  document.getElementById("2,2").innerHTML = "0";
+  document.getElementById("2,3").innerHTML = "0";
+  document.getElementById("3,0").innerHTML = "<b>Female</b>";
 
   drawHistogram();
-  refreshNoise();
+  //refreshNoise();
 }
 /** Creates a new histogram as the distribution has changed */
 function refreshHistogram() {
@@ -84,18 +87,30 @@ function refreshHistogram() {
 
 /** Refreshes the privatized queries, calculates the difference and prints this in the table */
 function refreshNoise() {
-  printBudget();
-  var eps = document.getElementById("budgetSlider").value,
-      sensitivity = 1000000,
-      query1 = Math.round(50000000 + laplaceRV(sensitivity,eps/2)),
-      query2 = Math.round(49000000 + laplaceRV(sensitivity,eps/2)),
-      privIncome = query1 - query2;
+  //printBudget();
+  var test = [ { Gender: 1, lists: [ 43, 65, 43, 32, 43, 32 ] },
+    { Gender: 2, lists: [ 31, 39, 37, 43 ] } ];
+  var eps = document.getElementById("budgetSlider").value;
+  var  sensitivity = 1;
 
-  document.getElementById("3,1").innerHTML = formatMoney(query1, 0);
-  document.getElementById("3,2").innerHTML = formatMoney(query2, 0);
-  document.getElementById("3,3").innerHTML = formatMoney(Math.max(0,privIncome),0);
+  //var query1 = Math.round(50000000 + laplaceRV(sensitivity,eps/2));
+  //var  query2 = Math.round(49000000 + laplaceRV(sensitivity,eps/2));
+  //var   privIncome = query1 - query2;
+  var GenderOneBefore = test[0].lists.length;
+  var GenderOneAfter = Math.max(0,Math.round(GenderOneBefore + laplaceRV(sensitivity,eps/2)));
+  var GenderTwoBefore = test[1].lists.length;
+  var GenderTwoAfter = Math.max(0,Math.round(GenderTwoBefore + laplaceRV(sensitivity,eps/2)));
+  document.getElementById("2,1").innerHTML = formatMoney(GenderOneBefore, 0);
+  document.getElementById("2,2").innerHTML = formatMoney(GenderOneAfter, 0);
+  document.getElementById("2,3").innerHTML = formatMoney(Math.max(0,GenderOneBefore-GenderOneAfter ),0);
+  document.getElementById("2,1").innerHTML = formatMoney(GenderTwoBefore, 0);
+  document.getElementById("2,2").innerHTML = formatMoney(GenderTwoAfter, 0);
+  document.getElementById("2,3").innerHTML = formatMoney(Math.max(0,GenderTwoBefore-GenderTwoAfter ),0);
+  var difference1 = Math.max(0,GenderOneBefore-GenderOneAfter );
+  var differnce2 = Math.max(0,GenderTwoBefore-GenderTwoAfter )
+  var arrays = [GenderOneBefore,GenderTwoBefore];
+  updateHistogram(arrays);
 
-  updateHistogram(privIncome);
 }
 /** Initializes the histogram (draws axes) */
 function drawHistogram() {
@@ -124,21 +139,21 @@ function drawHistogram() {
  * Updates the histogram on refresh (i.e. adds an extra bar)
  * @param {float} value - the value of the bar to add
  */
-function updateHistogram(val) {
+function updateHistogram(data) {
 
   // Exclude outlying points
-  var eps = document.getElementById("budgetSlider").value,
-      lap99 = -(1000000/(eps/2))*Math.log(0.02), // 99th percentile of Laplace
-      minLap = 1000000-lap99,
-      maxLap = 1000000+lap99;
+  //var eps = document.getElementById("budgetSlider").value,
+  //    lap99 = -(1000000/(eps/2))*Math.log(0.02), // 99th percentile of Laplace
+  //    minLap = 1000000-lap99,
+  //    maxLap = 1000000+lap99;
 
-  if(val > minLap && val < maxLap)
-    data.push(val); // append income value to list
-  else {
-    if(data.length == 0)  // to avoid null histogram being printed
-      refreshNoise();
-    return;
-  }
+  //if(val > minLap && val < maxLap)
+  //  data.push(val); // append income value to list
+  //else {
+  //  if(data.length == 0)  // to avoid null histogram being printed
+  //    refreshNoise();
+  //  return;
+  //}
 
   var x = d3.scale.linear()
       .domain([d3.min(data), d3.max(data)])
@@ -277,19 +292,21 @@ function printBudget() {
  * @returns {array[float]} the array of bins needed to input to the histogram layout
  */
 function thresholds() {
-  var numBins = 12,
+  var numBins = 2,
       eps = document.getElementById("budgetSlider").value,
-      lap99 = -(1000000/(eps/2))*Math.log(0.02), // 99th percentile of Laplace
-      minLap = 1000000-lap99,
-      maxLap = 1000000+lap99,
-      binRange = (maxLap-minLap)/numBins,
+      //lap99 = -(1000000/(eps/2))*Math.log(0.02), // 99th percentile of Laplace
+      //minLap = 1000000-lap99,
+      //maxLap = 1000000+lap99,
+      binRange = (1)/numBins,
       thresholds = [];
-  for(var i=0; i<=numBins; i++) {
-    var bin = minLap + i*binRange - binRange/2;
-    thresholds.push(bin);
-  }
-  thresholds.push(maxLap + binRange/2);
-
+  //for(var i=0; i<=numBins; i++) {
+  //  var bin = minLap + i*binRange - binRange/2;
+  //  thresholds.push(bin);
+  //}
+  //thresholds.push(maxLap + binRange/2);
+  thresholds.push(0);
+  thresholds.push(0.5);
+  thresholds.push(1);
   return thresholds;
 }
 /**
