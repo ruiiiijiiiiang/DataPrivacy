@@ -102,10 +102,11 @@ function refreshNoiseGender() {
   document.getElementById("3,3").innerHTML = Math.max(0,GenderTwoBefore-GenderTwoAfter );
 
   var data = [GenderOneBefore,GenderTwoBefore];
+  var noise = [GenderOneAfter-GenderOneBefore,GenderTwoAfter-GenderTwoBefore];
 
   //console.log(data);
   currType = "Gender";
-  drawHistogram(data,currType);
+  drawHistogram(data,noise,currType);
 
 }
  function refreshNoiseRace() {
@@ -167,9 +168,10 @@ function refreshNoiseGender() {
 
 
    var data = [RaceOneBefore,RaceTwoBefore,RaceThreeBefore,RaceFourBefore,RaceFiveBefore];
+   var noise = [RaceOneAfter-RaceOneBefore,RaceTwoAfter-RaceTwoBefore,RaceThreeAfter-RaceThreeBefore,RaceFourAfter-RaceFourBefore,RaceFiveAfter-RaceFiveBefore];
    //console.log(arrays);
    currType = "Race";
-   drawHistogram(data,currType);
+   drawHistogram(data,noise,currType);
 
  }
  function refreshNoiseAge() {
@@ -178,18 +180,20 @@ function refreshNoiseGender() {
    var eps = document.getElementById("budgetSlider").value;
    var  sensitivity = 1;
    var tempData = [];
+   var noise = []
    for (var i = 0,len = ageDicts.length; i < len; i++){
-     tempData.push(Math.max(0,Math.floor(ageDicts[i].lists.length + laplaceRV(sensitivity,eps/2))));
+     noise.push(Math.max(0,Math.floor(laplaceRV(sensitivity,eps/2))));
+     tempData.push(ageDicts[i].lists.length + noise[i]);
    }
-   console.log(tempData);
+   //console.log(tempData);
    currType = "Age";
-   drawHistogram(tempData,"Age");
+   drawHistogram(tempData,noise,"Age");
 
  }
 
  var myChart;
 /** Initializes the histogram (draws axes) */
-function drawHistogram(data,type) {
+function drawHistogram(data,noise,type) {
   $("#pqtbl").html(resetTable());
   console.log('type:', type);
   console.log(data);
@@ -283,6 +287,6 @@ function stopSim() {
 function laplaceRV(sensitivity, eps) {
   var u = 0.5 - Math.random(),
   b = sensitivity / eps;
-  if(u<0) {return b * Math.log(1+2*u);}
-  else {return -b * Math.log(1-2*u);}
+  if(u<0) {return Math.abs(b * Math.log(1+2*u));}
+  else {return Math.abs(-b * Math.log(1-2*u));}
 }
