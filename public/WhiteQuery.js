@@ -42,7 +42,7 @@ function resetTable() {
     tbl += "</tr>";
   }
   tbl += "</table>";
-  return tbl;
+  $("#pqtbl").replaceWith(tbl);
 }
 
 /** Generates the table */
@@ -54,7 +54,7 @@ function init() {
     RaceDicts[csv[i].Race-1].lists.push(csv[i].Age);
   }
 
-  $("#pqtbl").html(resetTable());
+  resetTable();
 
   var data = [GenderDicts[0].lists.length,GenderDicts[1].lists.length];
   refreshNoiseGender(data,"Gender");
@@ -194,7 +194,7 @@ function refreshNoiseGender() {
  var myChart;
 /** Initializes the histogram (draws axes) */
 function drawHistogram(data,noise,type) {
-  $("#pqtbl").html(resetTable());
+  resetTable();
   console.log('type:', type);
   console.log(data);
   var label;
