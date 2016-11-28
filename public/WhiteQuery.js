@@ -92,10 +92,11 @@ function refreshNoiseGender() {
   document.getElementById("3,3").innerHTML = Math.max(0,GenderTwoBefore-GenderTwoAfter );
 
   var data = [GenderOneBefore,GenderTwoBefore];
+  var noise = [GenderOneAfter-GenderOneBefore,GenderTwoAfter-GenderTwoBefore];
 
   //console.log(data);
   currType = "Gender";
-  drawHistogram(data,currType);
+  drawHistogram(data,noise,currType);
 
 }
  function refreshNoiseRace() {
@@ -157,9 +158,10 @@ function refreshNoiseGender() {
 
 
    var data = [RaceOneBefore,RaceTwoBefore,RaceThreeBefore,RaceFourBefore,RaceFiveBefore];
+   var noise = [RaceOneAfter-RaceOneBefore,RaceTwoAfter-RaceTwoBefore,RaceThreeAfter-RaceThreeBefore,RaceFourAfter-RaceFourBefore,RaceFiveAfter-RaceFiveBefore];
    //console.log(arrays);
    currType = "Race";
-   drawHistogram(data,currType);
+   drawHistogram(data,noise,currType);
 
  }
  function refreshNoiseAge() {
@@ -168,18 +170,24 @@ function refreshNoiseGender() {
    var eps = document.getElementById("budgetSlider").value;
    var sensitivity = 1;
    var tempData = [];
+   var noise = []
    for (var i = 0,len = ageDicts.length; i < len; i++){
-     tempData.push(Math.max(0,Math.floor(ageDicts[i].lists.length + laplaceRV(sensitivity,eps/2))));
+     noise.push(Math.max(0,Math.floor(laplaceRV(sensitivity,eps/2))));
+     tempData.push(ageDicts[i].lists.length + noise[i]);
    }
-   console.log(tempData);
+   //console.log(tempData);
    currType = "Age";
-   drawHistogram(tempData,"Age");
+   drawHistogram(tempData,noise,"Age");
 
  }
 
  var myChart;
 /** Initializes the histogram (draws axes) */
+<<<<<<< HEAD
 function drawHistogram(data,type) {
+=======
+function drawHistogram(data,noise,type) {
+>>>>>>> 2453950c010f5bd0a758502ea6b084ce9dd49554
   resetTable();
   console.log('type:', type);
   console.log(data);
@@ -201,7 +209,24 @@ function drawHistogram(data,type) {
     labels : label,
     datasets: [
         {
-            data: data
+            data: data,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ],
+          borderWidth: 1,
         }
     ]
   };
@@ -210,6 +235,8 @@ function drawHistogram(data,type) {
     type: 'bar',
     data: model
   });
+  myChart.options.title.text = "top of chart";   // test, total fail
+  myChart.options.legend.display = false;
 
 }
 /**
@@ -254,6 +281,6 @@ function stopSim() {
 function laplaceRV(sensitivity, eps) {
   var u = 0.5 - Math.random(),
   b = sensitivity / eps;
-  if(u<0) {return b * Math.log(1+2*u);}
-  else {return -b * Math.log(1-2*u);}
+  if(u<0) {return Math.abs(b * Math.log(1+2*u));}
+  else {return Math.abs(-b * Math.log(1-2*u));}
 }
