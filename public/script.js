@@ -84,6 +84,7 @@ function refreshNoiseGender() {
   var GenderTwoNoise = GenderTwoAfter - GenderTwoBefore;
 
   // Populate cells
+  document.getElementById("1,0").innerHTML = "<b>Gender</b>";
   document.getElementById("1,1").innerHTML = "<b>Raw</b>";
   document.getElementById("1,2").innerHTML = "<b>Perturbed</b>";
   document.getElementById("1,3").innerHTML = "<b>Noise</b>";
@@ -128,6 +129,7 @@ function refreshNoiseRace() {
   var RaceFiveAfter = Math.max(0,Math.round(RaceFiveBefore + laplaceRV(sensitivity,eps/2)));
   var RaceFiveNoise = RaceFiveAfter - RaceFiveBefore;
   // Populate cells
+  document.getElementById("1,0").innerHTML = "<b>Race</b>";
   document.getElementById("1,1").innerHTML = "<b>Raw</b>";
   document.getElementById("1,2").innerHTML = "<b>Perturbed</b>";
   document.getElementById("1,3").innerHTML = "<b>Noise</b>";
