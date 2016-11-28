@@ -1,28 +1,18 @@
+var csv;
 
- var csv;
-
- jQuery.ajaxSetup({ type: 'POST', cache: false });
- jQuery(document).ready(function (){
-   jQuery.getJSON('dataset.json', function(json) {
-     console.log('Read ' + json.length + ' sets of data');
-     csv = json;
-     init();
-   });
- });
-
-
+$.ajaxSetup({ type: 'POST', cache: false });
+$(document).ready(function (){
+  $.getJSON('dataset.json', function(json) {
+    console.log('Read ' + json.length + ' sets of data');
+    csv = json;
+    init();
+  });
+});
 
 // Global variables for the histogram
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 595 - margin.left - margin.right,
     height = 150 - margin.top - margin.bottom;
-var svg, data = [],
-    TRANSTIME = 25, // Time taken to transition
-    stop = false;   // Allow simulator to run
-// Formats
-var comma0dp = d3.format(",.0f"),
-    comma1dp = d3.format(",.1f"),
-    comma2dp = d3.format(",.2f");
 var ageDicts = [{"Age":10,lists:[]},{"Age":20,lists:[]},{"Age":30,lists:[]},{"Age":40,lists:[]},{"Age":50,lists:[]},{"Age":60,lists:[]},{"Age":70,lists:[]},{"Age":80,lists:[]},{"Age":91,lists:[]}];
 var GenderDicts = [{Gender:1,lists:[]},{Gender:2,lists:[]}];
 var RaceDicts = [{Race:1,lists:[]},{Race:2,lists:[]},{Race:3,lists:[]},{Race:4,lists:[]},{Race:5,lists:[]}];
@@ -42,7 +32,7 @@ function resetTable() {
     tbl += "</tr>";
   }
   tbl += "</table>";
-  return tbl;
+  $("#pqtbl").replaceWith(tbl);
 }
 
 /** Generates the table */
@@ -54,7 +44,7 @@ function init() {
     RaceDicts[csv[i].Race-1].lists.push(csv[i].Age);
   }
 
-  $("#pqtbl").html(resetTable());
+  resetTable();
 
   var data = [GenderDicts[0].lists.length,GenderDicts[1].lists.length];
   refreshNoiseGender(data,"Gender");
@@ -112,7 +102,7 @@ function refreshNoiseGender() {
    //printBudget();
    var test = GenderDicts;
    var eps = document.getElementById("budgetSlider").value;
-   var  sensitivity = 1;
+   var sensitivity = 1;
    var RaceOneBefore = test[0].lists.length;
    var RaceOneAfter = Math.max(0,Math.round(RaceOneBefore+ laplaceRV(sensitivity,eps/2)));
    var RaceTwoBefore = test[1].lists.length;
@@ -176,7 +166,7 @@ function refreshNoiseGender() {
    //printBudget();
    var test = ageDicts;
    var eps = document.getElementById("budgetSlider").value;
-   var  sensitivity = 1;
+   var sensitivity = 1;
    var tempData = [];
    for (var i = 0,len = ageDicts.length; i < len; i++){
      tempData.push(Math.max(0,Math.floor(ageDicts[i].lists.length + laplaceRV(sensitivity,eps/2))));
@@ -190,7 +180,7 @@ function refreshNoiseGender() {
  var myChart;
 /** Initializes the histogram (draws axes) */
 function drawHistogram(data,type) {
-  $("#pqtbl").html(resetTable());
+  resetTable();
   console.log('type:', type);
   console.log(data);
   var label;
